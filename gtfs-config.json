@@ -1,0 +1,11 @@
+{
+  "mongoUrl": "mongodb://localhost:27017/gtfs",
+  "agencies": [
+    {
+      "agency_key": "stmBusMetro",
+      "path": "/Users/Maxime/Downloads/gtfs_stm.zip",
+      "exclude": [
+      ]
+    }
+  ]
+}
