@@ -1,26 +1,48 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+module.exports = {
+	
+	doStuffWithRouteAndStop: function(route, stop) {
+		const gtfs = require('gtfs');
 
-// Article
-var Images = new Schema({
-	kind: {
-		type: String,
-		enum: ['thumbnail', 'detail'],
-		required: true
-	},
-	url: { type: String, required: true }
-});
+	    const mongoose = require('mongoose');
+		mongoose.Promise = global.Promise;
 
-var Article = new Schema({
-	title: { type: String, required: true },
-	author: { type: String, required: true },
-	description: { type: String, required: true },
-	images: [Images],
-	modified: { type: Date, default: Date.now }
-});
+        console.log("ok");
+    },
+	
 
-Article.path('title').validate(function (v) {
-	return v.length > 5 && v.length < 70;
-});
+	doStuffWithNearbyStops: function(stop) {
+		const gtfs = require('gtfs');
+	    const mongoose = require('mongoose');
+		mongoose.Promise = global.Promise;
 
-module.exports = mongoose.model('Article', Article);
+        gtfs.getRoutesByStop(stop.agency_key, stop.stop_id, (err, route) => this.doStuffWithRouteAndStop(err, stop));
+    },
+
+	getForPosition: function (lat, lng, callback) {
+		const gtfs = require('gtfs');
+		var Sync = require('sync');
+	    const mongoose = require('mongoose');
+		mongoose.Promise = global.Promise;
+	
+		gtfs.getStopsByDistance(lat, lng, .35, callback);
+		
+	}
+}
+
+// module.exports = function () {
+//     var gtfs = require('gtfs');
+
+//     const mongoose = require('mongoose');
+//     mongoose.Promise = global.Promise;
+
+//     mongoose.connect('mongodb://localhost:27017/gtfs');
+
+//     var getForPosition = function(lat, lng) {
+// 	console.log(gtfs);
+//         gtfs.getStopsByDistance(lat, lng, 0.35, (err, stops) => stops.forEach(stop => doStuffWithNearbyStops(stop)));
+//     }
+
+
+
+
+// }

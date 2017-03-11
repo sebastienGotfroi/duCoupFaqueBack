@@ -8,21 +8,8 @@ var log = require(libs + 'log')(module);
 var db = require(libs + 'db/mongoose');
 var Article = require(libs + 'model/article');
 
-router.get('/', passport.authenticate('bearer', { session: false }), function(req, res) {
-	
-	Article.find(function (err, articles) {
-		if (!err) {
-			return res.json(articles);
-		} else {
-			res.statusCode = 500;
-			
-			log.error('Internal error(%d): %s',res.statusCode,err.message);
-			
-			return res.json({ 
-				error: 'Server error' 
-			});
-		}
-	});
+router.get('/:lat/:lng', function(req, res) {
+	Article.getForPosition(req.param("lat"),req.param("lng"), (err, result) => {res.json(result); res.end()})
 });
 
 router.post('/', passport.authenticate('bearer', { session: false }), function(req, res) {
