@@ -1,2 +1,0 @@
-# duCoupFaqueBack
-HackQC
