@@ -74,25 +74,23 @@ module.exports = {
 					return { nom: route.route_long_name, id: stop.stop_id, lat: stop.stop_lat, lng: stop.stop_lon }
 				});
 
-			// let distances;
+			let calcDist = function(stop) {
+				var R = 6371e3; // metres
+				const pi = 3.14159;
+				var φ1 = lat * (pi/180);
+				var φ2 = stop.stop_lat * (pi/180);
+				var Δφ = (stop.lat - lat) * (pi/180);
+				var Δλ = (stop.lng - lng) * (pi/180);
 
-			// let calcDist = (stop) => {
-			// 	var R = 6371e3; // metres
-			// 	const pi = 3.14159;
-			// 	var φ1 = lat * (pi/180);
-			// 	var φ2 = stop.stop_lat * (pi/180);
-			// 	var Δφ = (stop.lat - lat) * (pi/180);
-			// 	var Δλ = (stop.lng - lng) * (pi/180);
+				var a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+					Math.cos(φ1) * Math.cos(φ2) *
+					Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+				var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-			// 	var a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-			// 		Math.cos(φ1) * Math.cos(φ2) *
-			// 		Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-			// 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				return R * c;
+			}
 
-			// 	var d = R * c;
-			// }
-
-			// distances = stops.map(stop => calcDist(stop));
+			let distances = stops.map(stop => calcDist(stop));
 
 			callback(stops);
 		});
