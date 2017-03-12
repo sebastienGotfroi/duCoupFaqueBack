@@ -8,6 +8,11 @@ var log = require(libs + 'log')(module);
 var db = require(libs + 'db/mongoose');
 var stm = require(libs + 'model/article');
 
+let buses = undefined, metro = undefined;
+let responseBody = undefined;
+
+
+
 router.get('/stops/:lat/:lng', function (req, res) {
 	stm.getStopsForPosition(req.param("lat"), req.param("lng"), (result) => { res.json(result); res.end() })
 });
@@ -17,47 +22,53 @@ router.get('/distance/:stopId', function (req, res) {
 });
 
 router.get('/superGoodUrl/:lat/:lng', function (req, res) {
+	if (responseBody === undefined) {
+		responseBody = {};
+		responseBody.ligne = [];
+		async.series(
+			[
+				function (callback) {
+					stm.getStopsForPosition(45.4991073, -73.5775732, r => callback(null, r));
+				},
+				function (callback) {
+					stm.getMetroForPosition(45.4991073, -73.5775732, r => callback(null, r));
+				},
+				function (callback) {
+					callback(null, null);
+				}
+			],
+			function (err, r) {
+				buses = r[0];
+				metro = r[1];
 
-	let buses = undefined, metro = undefined;
-	let result = {};
-	result.ligne = [];
-	async.series(
-		[
-			function (callback) {
-				stm.getStopsForPosition(req.param("lat"), req.param("lng"), result => callback(null, result));
-			},
-			function (callback) {
-				stm.getMetroForPosition(req.param("lat"), req.param("lng"), result => callback(null, result));
-			},
-			function (callback) {
-				callback(null, null);
-			}
-		],
-		function (err, r) {
-			buses = r[0];
-			metro = r[1];
-			
-				res.json(
-					{
-						bus: {
-							ligne: buses.map(result => {
-								return {
-									stop: { lat: result.lat, lng: result.lng },
-									nom: result.nom
-								};
-							})
-						},
-						metro: { ligne: metro.map(result => {
-								return {
-									stop: { lat: result.lat, lng: result.lng },
-									nom: result.nom
-								};
-							}) }
-					});
+				responseBody = {
+					bus: {
+						ligne: buses.map(result => {
+							return {
+								stop: { lat: result.lat, lng: result.lng },
+								nom: result.nom
+							};
+						})
+					},
+					metro: {
+						ligne: metro.map(result => {
+							return {
+								stop: { lat: result.lat, lng: result.lng },
+								nom: result.nom
+							};
+						})
+					}
+				};
+				res.json(responseBody);
 				res.end();
 			}
-		
-	);
+
+		);
+
+	} else {
+		res.json(responseBody);
+		res.end();
+	}
 
 })
 

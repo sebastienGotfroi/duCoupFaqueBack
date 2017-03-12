@@ -46,17 +46,10 @@ module.exports = {
 					/\/bus$/.test(stop.stop_url) //why would you do it this way?
 				)
 				.map(stop => {
-					try {
+					let route = gtfs.getRoutesByStop.sync(null, "stmBusMetro", stop.stop_id)[0];
 
-						let route = gtfs.getRoutesByStop.sync(null, "stmBusMetro", stop.stop_id)[0];
-						return { nom: route.route_short_name, id: stop.stop_id, lat: stop.stop_lat, lng: stop.stop_lon }
-						
-					} catch (error) {
-						console.log(error);
-						return {nom:error};
-					}
+					return { nom: route.route_short_name, id: stop.stop_id, lat: stop.stop_lat, lng: stop.stop_lon }
 				});
-			console.log(stops);
 			callback(stops);
 		});
 	},
@@ -76,10 +69,12 @@ module.exports = {
 					!/\/bus$/.test(stop.stop_url) //why would you do it this way?
 				)
 				.map(stop => {
-					return { nom: stop.stop_name, id: stop.stop_id, lat: stop.stop_lat, lng: stop.stop_lon }
+
+					let route = gtfs.getRoutesByStop.sync(null, "stmBusMetro", stop.stop_id)[0];
+					return { nom: route.route_long_name, id: stop.stop_id, lat: stop.stop_lat, lng: stop.stop_lon }
 				});
 
-			let distances;
+			// let distances;
 
 			// let calcDist = (stop) => {
 			// 	var R = 6371e3; // metres
@@ -103,3 +98,4 @@ module.exports = {
 		});
 	}
 }
+
