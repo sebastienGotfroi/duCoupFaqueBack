@@ -9,15 +9,12 @@ const bike = require(libs + 'util/tmpGraphUtil');
 router.get('/info/bike/:long/:lat',
   function(req, res) {
     const long = req.param('long'),
-    lat = req.param('lat'),
-    bikeContent = JSON.parse(fs.readFileSync(libs + 'data/newCyclables.json'));
-    //console.log(bikeContent);
-    console.log(long + ':' + lat);
+      lat = req.param('lat'),
+      bikeContent = JSON.parse(fs.readFileSync(libs + 'data/newCyclables.json'));
+    let result = bike.findClosestBikePath(bikeContent.features, [lat, long]).map((item) => { return {start:[item.coords[1], item.coords[0]], distance:0}});
+    //[start [long, lat] distance]
     res.json(
-      {
-        TODO:'Yessir', 
-        test:bike.findClosestBikePath(bikeContent.features, [lat, long])
-      }
+      result
     );
   }
 );

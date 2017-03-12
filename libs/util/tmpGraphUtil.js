@@ -1,6 +1,5 @@
 module.exports = {
   updatePointsIfNewPointIsClosest: function(position, newPoint, closestPoints){
-    console.log(newPoint);
     const furthestPoint = closestPoints[closestPoints.length-1];
     const xDiff = Math.abs(newPoint[0] - position[0]),
     yDiff = Math.abs(newPoint[1] - position[1]);
