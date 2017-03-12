@@ -6,15 +6,79 @@ var libs = process.cwd() + '/libs/';
 var log = require(libs + 'log')(module);
 
 var db = require(libs + 'db/mongoose');
-var Article = require(libs + 'model/article');
+var stm = require(libs + 'model/article');
 
-router.get('/:lat/:lng', function(req, res) {
-	Article.getForPosition(req.param("lat"),req.param("lng"), (err, result) => {res.json(result); res.end()})
+router.get('/stops/:lat/:lng', function(req, res) {
+	stm.getStopsForPosition(req.param("lat"),req.param("lng"), (result) => {res.json(result); res.end()})
 });
+
+router.get('/distance/:stopId', function(req, res){
+	stm.getDistancesForStop(req.param("stopId"), 30, (result) => {res.json(result); res.end()})
+});
+
+router.get('/superGoodUrl/:lat/:lng', function(req, res){
+	let result = {};
+	result.ligne = [];
+
+	stm.getStopsForPosition(req.param("lat"),req.param("lng"),
+	 results => {
+		res.json(
+			{
+				bus:{
+					ligne: results.map(result =>
+					 {
+						return {
+							stop: {lat:result.lat, lng: result.lng}, 
+							nom: result.nom};
+						})
+					}, 
+					metro: {ligne:[]}
+				});
+		res.end();
+	})
+})
+
+router.get('/bus/:lat/:lng', function(req, res){
+	let result = {};
+	result.ligne = [];
+
+	stm.getStopsForPosition(req.param("lat"),req.param("lng"),
+	 results => {
+		res.json(
+			{
+					ligne: results.map(result =>
+					 {
+						return {
+							stop: {lat:result.lat, lng: result.lng}, 
+							nom: result.nom};
+						})
+					
+				});
+		res.end();
+	})
+})
+
+router.get('/metro/:lat/:lng', function(req, res){
+
+	stm.getMetroForPosition(req.param("lat"),req.param("lng"),
+	 results => {
+		res.json(
+			{
+					ligne: results.map(result =>
+					 {
+						return {
+							stop: {lat:result.lat, lng: result.lng}, 
+							nom: result.nom};
+						})
+					
+				});
+		res.end();
+	})
+})
 
 router.post('/', passport.authenticate('bearer', { session: false }), function(req, res) {
 	
-	var article = new Article({
+	var article = new stm({
 		title: req.body.title,
 		author: req.body.author,
 		description: req.body.description,
@@ -49,7 +113,7 @@ router.post('/', passport.authenticate('bearer', { session: false }), function(r
 
 router.get('/:id', passport.authenticate('bearer', { session: false }), function(req, res) {
 	
-	Article.findById(req.params.id, function (err, article) {
+	stm.findById(req.params.id, function (err, article) {
 		
 		if(!article) {
 			res.statusCode = 404;
@@ -78,7 +142,7 @@ router.get('/:id', passport.authenticate('bearer', { session: false }), function
 router.put('/:id', passport.authenticate('bearer', { session: false }), function (req, res){
 	var articleId = req.params.id;
 
-	Article.findById(articleId, function (err, article) {
+	stm.findById(articleId, function (err, article) {
 		if(!article) {
 			res.statusCode = 404;
 			log.error('Article with id: %s Not Found', articleId);
@@ -112,7 +176,6 @@ router.put('/:id', passport.authenticate('bearer', { session: false }), function
 						error: 'Server error' 
 					});
 				}
-				log.error('Internal error (%d): %s', res.statusCode, err.message);
 			}
 		});
 	});

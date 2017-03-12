@@ -1,48 +1,80 @@
 module.exports = {
 	
-	doStuffWithRouteAndStop: function(route, stop) {
-		const gtfs = require('gtfs');
-
-	    const mongoose = require('mongoose');
-		mongoose.Promise = global.Promise;
-
-        console.log("ok");
-    },
-	
-
-	doStuffWithNearbyStops: function(stop) {
-		const gtfs = require('gtfs');
-	    const mongoose = require('mongoose');
-		mongoose.Promise = global.Promise;
-
-        gtfs.getRoutesByStop(stop.agency_key, stop.stop_id, (err, route) => this.doStuffWithRouteAndStop(err, stop));
-    },
-
-	getForPosition: function (lat, lng, callback) {
+	getDistancesForStop: function (stopId, maxTime,  callback) {
 		const gtfs = require('gtfs');
 		var Sync = require('sync');
-	    const mongoose = require('mongoose');
+		const mongoose = require('mongoose');
 		mongoose.Promise = global.Promise;
-	
-		gtfs.getStopsByDistance(lat, lng, .35, callback);
 		
+
+		let getStopIndex = function(stopTimes){
+			return stopTimes.findIndex(stopTime => stopTime.stop_id == stopId);
+		}
+
+		Sync(function () {
+
+			let stop = gtfs.getStops.sync(null, "stmBusMetro", stopId);
+
+			let route = gtfs.getRoutesByStop.sync(null, "stmBusMetro", stopId)[0];
+
+			let direction = gtfs.getDirectionsByRoute.sync(null, "stmBusMetro", route.route_id)[0];
+
+			let trip = gtfs.getTripsByRouteAndDirection.sync(null, "stmBusMetro", route.route_id, direction.direction_id)[0];
+
+			let stopTimes = gtfs.getStoptimesByTrip.sync(null,"stmBusMetro", trip.trip_id);
+
+			let stopsBefore = stopTimes.splice(0, getStopIndex(stopTimes, stop));
+			let stopsAfter = [];
+			stopsAfter.push(stopsBefore[stopsBefore.length - 1]);
+			stopsAfter = stopsAfter.concat(stopTimes);
+
+			stopsBefore.map()
+		});
+	},
+
+	getStopsForPosition: function (lat, lng, callback) {
+		const gtfs = require('gtfs');
+		const mongoose = require('mongoose');
+		mongoose.Promise = global.Promise;
+		var Sync = require('sync');
+
+		Sync(function () {
+			let stops = gtfs.getStopsByDistance.sync(null, lat, lng, .35);
+			console.log(stops);
+
+			stops = stops
+			.filter(stop => 
+				/\/bus$/.test(stop.stop_url) //why would you do it this way?
+			)
+			.map(stop => 
+			{ 
+				return {nom:stop.stop_name, id: stop.stop_id, lat:stop.stop_lat, lng: stop.stop_lon}
+			});
+			console.log(stops);
+			callback(stops);
+		});
+	},
+
+	getMetroForPosition: function (lat, lng, callback) {
+		const gtfs = require('gtfs');
+		const mongoose = require('mongoose');
+		mongoose.Promise = global.Promise;
+		var Sync = require('sync');
+
+		Sync(function () {
+			let stops = gtfs.getStopsByDistance.sync(null, lat, lng, .35);
+			console.log(stops);
+
+			stops = stops
+			.filter(stop => 
+				!/\/bus$/.test(stop.stop_url) //why would you do it this way?
+			)
+			.map(stop => 
+			{ 
+				return {nom:stop.stop_name, id: stop.stop_id, lat:stop.stop_lat, lng: stop.stop_lon}
+			});
+
+			callback(stops);
+		});
 	}
 }
-
-// module.exports = function () {
-//     var gtfs = require('gtfs');
-
-//     const mongoose = require('mongoose');
-//     mongoose.Promise = global.Promise;
-
-//     mongoose.connect('mongodb://localhost:27017/gtfs');
-
-//     var getForPosition = function(lat, lng) {
-// 	console.log(gtfs);
-//         gtfs.getStopsByDistance(lat, lng, 0.35, (err, stops) => stops.forEach(stop => doStuffWithNearbyStops(stop)));
-//     }
-
-
-
-
-// }
