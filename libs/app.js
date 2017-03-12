@@ -11,6 +11,7 @@ var config = require('./config');
 var log = require('./log')(module);
 
 var api = require('./routes/api');
+var bike = require('./routes/bike');
 var articles = require('./routes/articles');
 
 var app = express();
@@ -21,7 +22,8 @@ app.use(cookieParser());
 app.use(methodOverride());
 app.use(passport.initialize());
 
-app.use('/', articles);
+app.use('/busEtMetro', articles);
+app.use('/bike', bike);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next){

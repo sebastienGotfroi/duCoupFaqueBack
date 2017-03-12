@@ -76,7 +76,8 @@ router.get('/metro/:lat/:lng', function(req, res){
 	})
 })
 
-router.post('/', passport.authenticate('bearer', { session: false }), function(req, res) {
+
+router.post('/', function(req, res) {
 	
 	var article = new stm({
 		title: req.body.title,
@@ -111,7 +112,7 @@ router.post('/', passport.authenticate('bearer', { session: false }), function(r
 	});
 });
 
-router.get('/:id', passport.authenticate('bearer', { session: false }), function(req, res) {
+router.get('/:id', function(req, res) {
 	
 	stm.findById(req.params.id, function (err, article) {
 		
@@ -139,7 +140,7 @@ router.get('/:id', passport.authenticate('bearer', { session: false }), function
 	});
 });
 
-router.put('/:id', passport.authenticate('bearer', { session: false }), function (req, res){
+router.put('/:id', function (req, res){
 	var articleId = req.params.id;
 
 	stm.findById(articleId, function (err, article) {
