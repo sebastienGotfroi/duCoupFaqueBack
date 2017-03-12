@@ -1,5 +1,6 @@
 module.exports = {
   updatePointsIfNewPointIsClosest: function(position, newPoint, closestPoints){
+    console.log(newPoint);
     const furthestPoint = closestPoints[closestPoints.length-1];
     const xDiff = Math.abs(newPoint[0] - position[0]),
     yDiff = Math.abs(newPoint[1] - position[1]);
@@ -22,6 +23,7 @@ module.exports = {
     newClosePoint['yDiff'] = yDiff;
     newClosePoint['distSum'] = distSum;
     newClosePoint['dist'] = dist;
+    newClosePoint['coords'] = newPoint;
 
     //TODO: Use with a more efficient algorithm?
     // Such as move by halfs, like mergeSort but with only an iterator and our value
@@ -59,6 +61,7 @@ module.exports = {
         newPoint['yDiff'] = Math.abs(trailPoint[1] - home[1]);
         newPoint['distSum'] = newPoint['xDiff'] + newPoint['yDiff'];
         newPoint['dist'] = this.pythagore(home[0], home[1], trailPoint[0], trailPoint[1]);
+        newPoint['coords'] = trailPoint;
         for(let j = 0; j <= closestPoints.length; j++){
           console.log('Length: ' + closestPoints.length);
           if(j == closestPoints.length){

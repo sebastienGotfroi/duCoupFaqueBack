@@ -10,7 +10,7 @@ router.get('/info/bike/:long/:lat',
   function(req, res) {
     const long = req.param('long'),
     lat = req.param('lat'),
-    bikeContent = JSON.parse(fs.readFileSync(libs + 'data/cyclables.json'));
+    bikeContent = JSON.parse(fs.readFileSync(libs + 'data/newCyclables.json'));
     //console.log(bikeContent);
     console.log(long + ':' + lat);
     res.json(
